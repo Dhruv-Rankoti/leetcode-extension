@@ -14,7 +14,6 @@ async function getDailyQuestion() {
         const data = await response.json();
         questionLink = data.questionLink;
         questionSlug = data.titleSlug;
-        console.log("Daily question fetched:", questionLink);
     } catch (error) {
         console.error("Error fetching daily question:", error);
     }
@@ -30,7 +29,6 @@ async function getUserAS() {
         const data = await response.json();
 
         solved = data.submission.some((submission) => submission.titleSlug === questionSlug);
-        console.log("Solved status updated:", solved);
     } catch (error) {
         console.error("Error fetching user submissions:", error);
     }
@@ -50,8 +48,6 @@ function scheduleSolvedUpdate() {
 
     const timeUntilUpdate = nextUpdate - istNow;
 
-    console.log("Next update scheduled at:", nextUpdate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }));
-
     // Schedule the first update
     setTimeout(() => {
         updateSolvedStatus();
@@ -62,7 +58,6 @@ function scheduleSolvedUpdate() {
 
 // Update the `solved` status
 async function updateSolvedStatus() {
-    console.log("Updating solved status...");
     await getUserAS();
 }
 
@@ -87,14 +82,10 @@ function applyRedirectRule() {
                 },
             ],
         });
-        console.log("Redirect rule applied to:", questionLink);
-    } else {
-        console.log("No redirection applied. Solved:", solved);
     }
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
-    console.log("Extension installed.");
     await getDailyQuestion();
     scheduleSolvedUpdate();
     applyRedirectRule();

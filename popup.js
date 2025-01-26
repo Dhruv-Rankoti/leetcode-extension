@@ -7,16 +7,13 @@ async function getQuestionsSolved() {
     let totalSolved = 0, totalQuestions = 0;
 
     try {
-        console.log(`Fetching data for user: ${user}`);
         const response = await fetch(`${api}/userProfile/${user}`);
-        console.log(`Response status: ${response.status}`);
 
         if (!response.ok) {
             throw new Error("Could not fetch user details");
         }
 
         const data = await response.json();
-        console.log("Fetched data:", data);
 
         if (!data || typeof data !== "object") {
             throw new Error("Invalid data received.");
