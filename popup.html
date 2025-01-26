@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeetCode Stats</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  
+  <div class="container">
+    <div class="change-user">
+      <h2>Set Your LeetCode Username</h2>
+      <input type="text" id="username" placeholder="Enter your username">
+      <button id="saveUsername">Save Username</button>
+    
+      <div id="username-display"></div>
+    </div>
+    <div class="stats">
+      <div class="circle">
+        <div class="progress" id="totalProgress"></div>
+        <div class="inner-circle">
+          <h1><span id="totalSolved">0</span>/<span id="totalQuestions">0</span></h1>
+          <p>Solved</p>
+        </div>
+      </div>
+      <div class="categories">
+        <div class="category easy">
+          <p>Easy</p>
+          <span id="easySolved">0</span>/<span id="easyTotal">0</span>
+        </div>
+        <div class="category medium">
+          <p>Medium</p>
+          <span id="mediumSolved">0</span>/<span id="mediumTotal">0</span>
+        </div>
+        <div class="category hard">
+          <p>Hard</p>
+          <span id="hardSolved">0</span>/<span id="hardTotal">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+
+</html>
