@@ -2,7 +2,7 @@ let questionLink = "";
 let questionSlug = "";
 let solved = false;
 let username = "";
-const api = "https://alfa-leetcode-api.onrender.com/";
+const api = "https://my-leetcode-api-shadow-sama.onrender.com";
 
 // Function to get the daily question
 async function getDailyQuestion() {

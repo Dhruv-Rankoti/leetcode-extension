@@ -1,35 +1,5 @@
-const api = "https://alfa-leetcode-api.onrender.com/";
+const api = "https://my-leetcode-api-shadow-sama.onrender.com";
 let user = "";
-
-document.addEventListener("DOMContentLoaded", () => {
-    const usernameInput = document.getElementById("username");
-    const saveButton = document.getElementById("saveUsername");
-    const usernameDisplay = document.getElementById("username-display");
-
-    chrome.storage.sync.get("username", (data) => {
-        if (data.username) {
-            usernameDisplay.textContent = `Current Username: ${data.username}`;
-            user = data.username;
-            populateStats();
-        } else {
-            usernameDisplay.textContent = "No username set.";
-        }
-    });
-
-    saveButton.addEventListener("click", () => {
-        const username = usernameInput.value.trim();
-        if (username) {
-            chrome.storage.sync.set({ username }, () => {
-                user = username;
-                usernameDisplay.textContent = `Current Username: ${username}`;
-                alert("Username saved successfully!");
-                populateStats();
-            });
-        } else {
-            alert("Please enter a valid username.");
-        }
-    });
-});
 
 async function getQuestionsSolved() {
     let solvedEasy = 0, solvedMedium = 0, solvedHard = 0;
@@ -94,21 +64,64 @@ function updateProgressBar(data) {
 }
 
 async function populateStats() {
-    if (!user) {
-        console.warn("No username provided. Please set a username.");
-        return;
+    const loader = document.getElementById("loading-spinner");
+    loader.style.display = "block"; // Show the loader
+
+    try {
+        if (!user) {
+            console.warn("No username provided. Please set a username.");
+            return;
+        }
+
+        const stats = await getQuestionsSolved();
+
+        // Update total stats
+        document.getElementById("totalSolved").textContent = stats.totalSolved;
+        document.getElementById("totalQuestions").textContent = stats.totalQuestions;
+
+        // Update progress bar
+        updateProgressBar(stats);
+
+        // Update category stats
+        document.getElementById("easySolved").textContent = stats.easy.solved;
+        document.getElementById("easyTotal").textContent = stats.easy.total;
+        document.getElementById("mediumSolved").textContent = stats.medium.solved;
+        document.getElementById("mediumTotal").textContent = stats.medium.total;
+        document.getElementById("hardSolved").textContent = stats.hard.solved;
+        document.getElementById("hardTotal").textContent = stats.hard.total;
+    } catch (error) {
+        console.error("Error populating stats:", error);
+    } finally {
+        loader.style.display = "none"; // Hide the loader
     }
-
-    const stats = await getQuestionsSolved();
-
-    document.getElementById("totalSolved").textContent = stats.totalSolved;
-    document.getElementById("totalQuestions").textContent = stats.totalQuestions;
-    document.getElementById("easySolved").textContent = stats.easy.solved;
-    document.getElementById("easyTotal").textContent = stats.easy.total;
-    document.getElementById("mediumSolved").textContent = stats.medium.solved;
-    document.getElementById("mediumTotal").textContent = stats.medium.total;
-    document.getElementById("hardSolved").textContent = stats.hard.solved;
-    document.getElementById("hardTotal").textContent = stats.hard.total;
-
-    updateProgressBar(stats);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const usernameInput = document.getElementById("username");
+    const saveButton = document.getElementById("saveUsername");
+    const usernameDisplay = document.getElementById("username-display");
+
+    chrome.storage.sync.get("username", (data) => {
+        if (data.username) {
+            usernameDisplay.textContent = `Current Username: ${data.username}`;
+            user = data.username;
+            populateStats();
+        } else {
+            usernameDisplay.textContent = "No username set.";
+        }
+    });
+
+    saveButton.addEventListener("click", () => {
+        const username = usernameInput.value.trim();
+        if (username) {
+            chrome.storage.sync.set({ username }, () => {
+                user = username;
+                usernameDisplay.textContent = `Current Username: ${username}`;
+                alert("Username saved successfully!");
+                populateStats();
+            });
+        } else {
+            alert("Please enter a valid username.");
+        }
+    });
+});

@@ -9,15 +9,19 @@
 </head>
 
 <body>
-  
   <div class="container">
+    <!-- Loading Spinner -->
+    <div class="loader" id="loading-spinner"></div>
+
+    <!-- Username Section -->
     <div class="change-user">
       <h2>Set Your LeetCode Username</h2>
       <input type="text" id="username" placeholder="Enter your username">
       <button id="saveUsername">Save Username</button>
-    
       <div id="username-display"></div>
     </div>
+
+    <!-- Stats Section -->
     <div class="stats">
       <div class="circle">
         <div class="progress" id="totalProgress"></div>
@@ -44,5 +48,6 @@
   </div>
   <script src="popup.js"></script>
 </body>
+
 
 </html>
