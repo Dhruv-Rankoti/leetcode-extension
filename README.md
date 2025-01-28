@@ -1,5 +1,6 @@
-# leetcode-extension
+# LeetCode Extension
 
-this extension can be used when you are lazy or forget to do daily leetcode problems.
+Have you ever forgotten to complete your daily LeetCode problem? 
+Have you lost your streak?
 
-so, i came with a solution and this extension will remind you to solve the daily problem first before you can surf the web.
+This extension is designed to remind you to solve your daily problem before you continue browsing the web. Stay on track with your coding practice!
