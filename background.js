@@ -20,7 +20,7 @@ async function getDailyQuestion() {
 }
 
 // Function to check if the question is solved
-async function getUserSubmission() {
+async function updateSolvedStatus() {
     try {
         const response = await fetch(`${api}/${username}/acSubmission`);
         if (!response.ok) {
@@ -34,40 +34,14 @@ async function getUserSubmission() {
     }
 }
 
-// Schedule updates for `solved` at 5:30 AM IST
-function scheduleSolvedUpdate() {
-    const now = new Date();
-    const istOffset = 5.5 * 60 * 60 * 1000;
-    const istNow = new Date(now.getTime() + istOffset);
-
-    // Calculate the next 5:30 AM IST
-    let nextUpdate = new Date(istNow.getFullYear(), istNow.getMonth(), istNow.getDate(), 5, 30, 0);
-    if (istNow >= nextUpdate) {
-        nextUpdate.setDate(nextUpdate.getDate() + 1);
-    }
-
-    const timeUntilUpdate = nextUpdate - istNow;
-
-    // Schedule the first update
-    setTimeout(() => {
-        updateSolvedStatus();
-        // Schedule subsequent updates every 24 hours
-        setInterval(updateSolvedStatus, 24 * 60 * 60 * 1000);
-    }, timeUntilUpdate);
-}
-
-// Update the `solved` status
-async function updateSolvedStatus() {
-    await getUserSubmission();
+async function removeRedirectRule() {
+    await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [1] });
 }
 
 async function applyRedirectRule(tabId) {
-    // Remove rule
-    await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [1] });
     // Add a rule
     if (!solved && questionLink) {
         await chrome.declarativeNetRequest.updateSessionRules({
-            removeRuleIds: [1],
             addRules: [
                 {
                     id: 1,
@@ -106,12 +80,13 @@ chrome.runtime.onStartup.addListener(() => {
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (details.frameId === 0) {
         const { tabId } = details;
+        await removeRedirectRule();
 
         if (!questionLink || !username) {
             await getDailyQuestion();
             username = (await chrome.storage.sync.get("username")).username || "";
         }
-        await getUserSubmission();
+        await updateSolvedStatus();
         await applyRedirectRule(tabId);
     }
 });
@@ -127,7 +102,7 @@ chrome.storage.sync.get("username", (data) => {
 // Listen for username updates and update the username variable
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.username) {
-        if (changes.username.newValue !== username) solved = false;
         username = changes.username.newValue || "";
+        updateSolvedStatus();
     }
 });
