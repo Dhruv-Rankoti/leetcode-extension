@@ -20,7 +20,7 @@ async function getDailyQuestion() {
 }
 
 // Function to check if the question is solved
-async function getUserAS() {
+async function getUserSubmission() {
     try {
         const response = await fetch(`${api}/${username}/acSubmission`);
         if (!response.ok) {
@@ -58,12 +58,15 @@ function scheduleSolvedUpdate() {
 
 // Update the `solved` status
 async function updateSolvedStatus() {
-    await getUserAS();
+    await getUserSubmission();
 }
 
-function applyRedirectRule() {
+async function applyRedirectRule(tabId) {
+    // Remove rule
+    await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [1] });
+    // Add a rule
     if (!solved && questionLink) {
-        chrome.declarativeNetRequest.updateDynamicRules({
+        await chrome.declarativeNetRequest.updateSessionRules({
             removeRuleIds: [1],
             addRules: [
                 {
@@ -76,17 +79,55 @@ function applyRedirectRule() {
                         },
                     },
                     condition: {
-                        urlFilter: "*",
+                        urlFilter: "*://*/*", // Matches all URLs
                         resourceTypes: ["main_frame"],
+                        tabIds: [tabId], // Restrict to the current tab
                     },
                 },
             ],
         });
+        console.log(`Redirect rule applied for tabId ${tabId}`);
+    } else {
+        console.log("No redirect rule applied (either solved or no question link).");
     }
 }
 
+
 chrome.runtime.onInstalled.addListener(async () => {
     await getDailyQuestion();
-    scheduleSolvedUpdate();
-    applyRedirectRule();
+    username = (await chrome.storage.sync.get("username")).username || "";
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    getDailyQuestion();
+    username = (chrome.storage.sync.get("username")).username || "";
+})
+
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+    if (details.frameId === 0) {
+        const { tabId } = details;
+
+        if (!questionLink || !username) {
+            await getDailyQuestion();
+            username = (await chrome.storage.sync.get("username")).username || "";
+        }
+        await getUserSubmission();
+        await applyRedirectRule(tabId);
+    }
+});
+
+// Fetch the username from storage on startup
+chrome.storage.sync.get("username", (data) => {
+    if (data.username) {
+        username = data.username;
+        solved = false;
+    }
+});
+
+// Listen for username updates and update the username variable
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes.username) {
+        if (changes.username.newValue !== username) solved = false;
+        username = changes.username.newValue || "";
+    }
 });

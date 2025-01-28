@@ -3,7 +3,7 @@
     "name": "LeetCode Torture",
     "version": "1.3",
     "description": "It will haunt you until you solve the leetcode potd",
-    "permissions": ["declarativeNetRequest", "storage"],
+    "permissions": ["declarativeNetRequest", "storage", "webNavigation"],
     "background": {
       "service_worker": "background.js"
     },
