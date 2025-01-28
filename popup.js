@@ -43,7 +43,6 @@ async function getQuestionsSolved() {
 
 function updateProgressBar(data) {
     if (data.totalSolved === 0) {
-        console.warn("No problems solved yet. Progress cannot be displayed.");
         return;
     }
 
@@ -66,7 +65,7 @@ async function populateStats() {
 
     try {
         if (!user) {
-            console.warn("No username provided. Please set a username.");
+            // console.warn("No username provided. Please set a username.");
             return;
         }
 

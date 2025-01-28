@@ -1,7 +1,8 @@
 let questionLink = "";
 let questionSlug = "";
-let solved = false;
+let solved = true;
 let username = "";
+let invalidUsername = false;
 const api = "https://my-leetcode-api-shadow-sama.onrender.com";
 
 // Function to get the daily question
@@ -27,7 +28,12 @@ async function updateSolvedStatus() {
             throw new Error("Could not fetch user submission");
         }
         const data = await response.json();
-
+        if (data.count === 0) {
+            invalidUsername = true;
+            solved = true;
+            return;
+        }
+        invalidUsername = false;
         solved = data.submission.some((submission) => submission.titleSlug === questionSlug);
     } catch (error) {
         console.error("Error fetching user submissions:", error);
@@ -60,9 +66,6 @@ async function applyRedirectRule(tabId) {
                 },
             ],
         });
-        console.log(`Redirect rule applied for tabId ${tabId}`);
-    } else {
-        console.log("No redirect rule applied (either solved or no question link).");
     }
 }
 
@@ -81,6 +84,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (details.frameId === 0) {
         const { tabId } = details;
         await removeRedirectRule();
+
+        if (invalidUsername) return;
 
         if (!questionLink || !username) {
             await getDailyQuestion();
